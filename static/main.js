@@ -102,22 +102,24 @@ let previewEl; // container we inject once
 
 function ensurePreviewContainer() {
   if (previewEl) return previewEl;
-  const cards = document.querySelectorAll('.card');
-  const after = cards[0];
+
+  const host = document.getElementById('previewHost');
   previewEl = document.createElement('div');
-  previewEl.className = 'card';
-  previewEl.style.marginTop = '16px';
+  previewEl.className = 'stack';  // content stack inside the host card
   previewEl.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
       <strong>Added lines</strong>
       <span id="preview-count" class="pill">0 items</span>
     </div>
     <div id="preview-body" class="stack"></div>
-    <div id="preview-footer" style="margin-top:10px;font-size:13px;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;">
-      Exterior units: <strong id="ext-count">0</strong> · 6+ discount: <strong id="ext-sixplus">Not yet</strong>
+    <div id="preview-footer"
+         style="margin-top:8px;font-size:13px;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;">
+      Exterior units: <strong id="ext-count">0</strong> · 6+ discount:
+      <strong id="ext-sixplus">Not yet</strong>
     </div>
   `;
-  after.parentNode.insertBefore(previewEl, after.nextSibling);
+  host.innerHTML = '';           // clear placeholder content
+  host.appendChild(previewEl);   // insert our preview UI
   return previewEl;
 }
 
