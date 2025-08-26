@@ -2,251 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>RTS Quote (Table-driven)</title>
+  <title>RTS Quote for Advertising</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{
-      --bg:#fafafa;
-      --card:#ffffff;
-      --ink:#111827;
-      --muted:#6b7280;
-      --brand:#2563eb;
-      --brand-ink:#fff;
-      --border:#e5e7eb;
-      --ok:#065f46;
-      --pill:#eef2ff;
-      --pill-ink:#3730a3;
-      --warn:#b45309;
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #4338ca;
+      --accent-2: #4f46e5;
+      --pill-bg: #eef2ff;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-    .container{max-width:1100px;margin:28px auto;padding:0 16px}
-    h1{margin:0 0 16px;font-size:28px;font-weight:750;letter-spacing:.2px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .stack{display:grid;gap:12px}
-    .row{display:grid;gap:12px;grid-template-columns:repeat(12,1fr);align-items:end}
-    .col-3{grid-column:span 3}
-    .col-2{grid-column:span 2}
-    .col-4{grid-column:span 4}
-    .col-6{grid-column:span 6}
-    .col-12{grid-column:span 12}
-    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
-    select,input[type="number"]{
-      width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;
-      font-size:15px;appearance:none
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    .sub { color: var(--muted); margin: 0 0 20px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1fr 1fr; }
     }
-    input[type="number"]{appearance:textfield}
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button{appearance:none;margin:0}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:600}
-    .btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
-    .btn.ghost{background:#fff}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    .hint{font-size:13px;color:var(--muted)}
-    .pill{display:inline-block;background:var(--pill);color:var(--pill-ink);padding:4px 10px;border-radius:999px;font-size:12px}
-    .table-card{margin-top:16px}
-    table{width:100%;border-collapse:collapse}
-    thead th{background:#f6f7fb;color:#374151;font-weight:700;font-size:13px;border-bottom:1px solid var(--border);padding:10px}
-    tbody td{border-bottom:1px solid var(--border);padding:10px;vertical-align:top}
-    tfoot th, tfoot td{background:#fafbff;border-top:1px solid var(--border);padding:12px 10px}
-    td.right, th.right{text-align:right}
-    .totals-row th{font-weight:700}
-    .saved{color:var(--ok);font-weight:800}
-    .notice{color:var(--warn);font-size:12px}
-    @media (max-width: 840px){
-      .row{grid-template-columns:repeat(6,1fr)}
-      .col-3{grid-column:span 3}
-      .col-2{grid-column:span 3}
-      .col-4{grid-column:span 6}
-      .col-6{grid-column:span 6}
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    select, input[type="number"], input[type="text"] {
+      width: 100%; padding: 10px 12px; font-size: 14px;
+      border: 1px solid var(--border); border-radius: 10px; background: #fff;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .stack > * + * { margin-top: 12px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn {
+      padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: #fff; cursor: pointer; font-weight: 600;
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.secondary { background: #111827; color: #fff; border-color: #111827; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .pill {
+      display: inline-block; padding: 6px 10px; border-radius: 999px;
+      background: var(--pill-bg); color: var(--accent); font-weight: 600; font-size: 12px;
+    }
+    #msg {
+      padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--border);
+      font-size: 14px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { text-align: left; color: var(--muted); }
+    .right { text-align: right; }
+    .totals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .totals .box {
+      padding: 10px; background: #f9fafb; border: 1px solid var(--border); border-radius: 10px;
+      text-align: center; font-weight: 700;
+    }
+    .header-center { text-align: center; margin-bottom: 8px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>RTS Quote (Table-driven)</h1>
+  <div class="wrap">
+    <div class="header-center">
+      <div style="font-size:20px; font-weight:800;">City of Gainesville</div>
+      <div style="font-size:16px; font-weight:700; color:var(--muted)">RTS Quote for Advertising</div>
+    </div>
 
-    <!-- Controls -->
-    <div class="card stack" style="gap:16px">
-      <div class="row">
-        <div class="col-3">
-          <label for="type">Type</label>
-          <select id="type" aria-label="Type">
-            <option value="" disabled selected>Select…</option>
-            <option>Exterior</option>
-            <option>Interior</option>
-          </select>
-        </div>
+    <p class="sub">Build your quote using the official RTS rate tables. Add lines, pick discounts, then calculate or download a PDF.</p>
 
-        <div class="col-3">
-          <label for="variant">Variant</label>
-          <select id="variant" aria-label="Variant" disabled>
-            <option value="" disabled selected>Select…</option>
-          </select>
-        </div>
+    <div id="msg" class="card">Loading…</div>
 
-        <div class="col-2">
-          <label for="months">Months</label>
-          <select id="months" aria-label="Months" disabled>
-            <option value="" disabled selected>Select…</option>
-          </select>
-        </div>
+    <div class="grid">
+      <!-- Controls card -->
+      <div class="card">
+        <div class="stack">
+          <!-- Client name (for PDF filename and header) -->
+          <div>
+            <label for="clientName">Client name</label>
+            <input id="clientName" type="text" placeholder="e.g., Acme Co." />
+          </div>
 
-        <div class="col-2">
-          <label for="qty">Qty</label>
-          <input id="qty" type="number" inputmode="numeric" min="1" placeholder="e.g. 6" />
-        </div>
+          <div class="row">
+            <div>
+              <label for="type">Type</label>
+              <select id="type">
+                <option value="" disabled selected>Select…</option>
+                <option value="Exterior">Exterior</option>
+                <option value="Interior">Interior</option>
+              </select>
+            </div>
+            <div>
+              <label for="variant">Variant</label>
+              <select id="variant"></select>
+            </div>
+          </div>
 
-        <div class="col-2" style="display:flex;gap:8px;align-items:flex-end">
-          <button id="add" class="btn" disabled>Add line</button>
-        </div>
+          <div class="row">
+            <div>
+              <label for="months" id="monthsLabel">Months</label>
+              <select id="months"></select>
+            </div>
+            <div>
+              <label for="qty">Qty</label>
+              <input id="qty" type="number" min="1" placeholder="1" />
+            </div>
+          </div>
 
-        <div class="col-12 hint">
-          <span class="notice">Tip:</span> Pick <em>Type → Variant → Months → Qty</em> before adding a line.
+          <div class="row">
+            <div>
+              <label for="discount">Discount</label>
+              <select id="discount">
+                <option value="None" selected>None</option>
+                <option value="Agency 10%">Agency 10%</option>
+                <option value="PSA 10%">PSA 10%</option>
+              </select>
+            </div>
+            <div>
+              <label for="upfront">Upfront (Exterior)</label>
+              <select id="upfront">
+                <option value="No" selected>No</option>
+                <option value="Yes">Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="add" class="btn">Add line</button>
+            <button id="calc" class="btn primary">Calculate Quote</button>
+            <button id="pdf" class="btn secondary">Download PDF</button>
+            <span class="pill">6+ exterior units → extra discount</span>
+            <button id="clear" class="btn" title="Clear all lines">Clear</button>
+          </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-3">
-          <label for="discount">Discount</label>
-          <select id="discount" aria-label="Discount">
-            <option>None</option>
-            <option>Agency 10%</option>
-            <option>PSA 10%</option>
-          </select>
+      <!-- The "Added lines" preview will be injected by JS as a card here -->
+      <div class="card" id="tableWrap" style="display:none;">
+        <strong>Quote breakdown</strong>
+        <div style="margin-top:10px; overflow-x:auto;">
+          <table id="lines">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Product</th>
+                <th>Code</th>
+                <th class="right">Months</th>
+                <th class="right">Qty</th>
+                <th class="right">Unit Price</th>
+                <th class="right">Line Total</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
 
-        <div class="col-3">
-          <label for="upfront">Upfront (Exterior)</label>
-          <select id="upfront" aria-label="Upfront">
-            <option>No</option>
-            <option>Yes</option>
-          </select>
-        </div>
-
-        <div class="col-6" style="display:flex;align-items:flex-end;gap:12px">
-          <button id="calc" class="btn primary">Calculate Quote</button>
-          <button id="clear" class="btn ghost" title="Remove all lines">Clear lines</button>
-          <span id="msg" class="pill" aria-live="polite"></span>
-        </div>
-
-        <div class="col-12 hint">
-          6+ Buses auto-applies to exterior if total exterior qty ≥ 6
+        <div class="totals">
+          <div class="box">Subtotal: <span id="subtotal">$0.00</span></div>
+          <div class="box">Total: <span id="total">$0.00</span></div>
+          <div class="box">Saved: <span id="saved">$0.00</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Results table -->
-    <div class="card table-card" id="tableWrap" style="display:none">
-      <table id="lines">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Product/Size</th>
-            <th>Code</th>
-            <th class="right">Months</th>
-            <th class="right">Qty</th>
-            <th class="right">Unit</th>
-            <th class="right">Line</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
-          <tr class="totals-row">
-            <th colspan="6" class="right">Subtotal (Base)</th>
-            <th id="subtotal" class="right"></th>
-          </tr>
-          <tr class="totals-row">
-            <th colspan="6" class="right">Total</th>
-            <th id="total" class="right"></th>
-          </tr>
-          <tr class="totals-row">
-            <th colspan="6" class="right">You Saved</th>
-            <th id="saved" class="right saved"></th>
-          </tr>
-        </tfoot>
-      </table>
+    <div class="card" style="margin-top:16px; text-align:center; color:#374151;">
+      Template reviewed and approved as to form and legality by the City Attorney's Office on 05/22/2022; valid through 05/22/2023.<br/>
+      Station 5 - P.O Box 490 - Gainesville, FL 32627 - Ph: 352-334-2600 - Fax: 352-334-3681 - www.go-rts.com
     </div>
   </div>
 
-  <!-- Data from Flask -->
+  <!-- Expose rate data to JS -->
   <script>
-    window.ALLOWED_MONTHS = {{ allowed_months|tojson }};
     window.EXTERIOR_PRODUCTS = {{ exterior_products|tojson }};
-    window.INTERIOR_SIZES = {{ interior_sizes|tojson }};
+    window.INTERIOR_SIZES    = {{ interior_sizes|tojson }};
+    window.ALLOWED_MONTHS    = {{ allowed_months|tojson }};
   </script>
-
-  <!-- Your existing behavior -->
-  <script src="/static/main.js" defer></script>
-
-  <!-- Small helper to keep fields EMPTY by default & enable buttons nicely -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const typeSel    = document.getElementById('type');
-      const variantSel = document.getElementById('variant');
-      const monthsSel  = document.getElementById('months');
-      const qtyInput   = document.getElementById('qty');
-      const addBtn     = document.getElementById('add');
-      const clearBtn   = document.getElementById('clear');
-      const tableWrap  = document.getElementById('tableWrap');
-      const msg        = document.getElementById('msg');
-
-      // Ensure placeholders exist & are selected
-      function ensurePlaceholder(sel){
-        if (!sel.querySelector('option[value=""]')) {
-          const opt = document.createElement('option');
-          opt.value = "";
-          opt.disabled = true;
-          opt.selected = true;
-          opt.textContent = "Select…";
-          sel.insertBefore(opt, sel.firstChild);
-        }
-        sel.value = "";
-      }
-
-      // After main.js runs, reset to blank defaults
-      setTimeout(() => {
-        ensurePlaceholder(variantSel);
-        ensurePlaceholder(monthsSel);
-        variantSel.disabled = true;
-        monthsSel.disabled  = true;
-        addBtn.disabled     = true;
-      }, 0);
-
-      // Progressive enabling
-      typeSel.addEventListener('change', () => {
-        variantSel.disabled = false;
-        ensurePlaceholder(variantSel);
-        ensurePlaceholder(monthsSel);
-      });
-
-      variantSel.addEventListener('change', () => {
-        monthsSel.disabled = false;
-        // Make sure months has a placeholder at top
-        ensurePlaceholder(monthsSel);
-      });
-
-      // Gate the Add button
-      function canAdd() {
-        return (
-          typeSel.value &&
-          variantSel.value &&
-          monthsSel.value &&
-          qtyInput.value && Number(qtyInput.value) > 0
-        );
-      }
-      ['change','input'].forEach(ev => {
-        document.addEventListener(ev, () => {
-          addBtn.disabled = !canAdd();
-        });
-      });
-
-      // Clear lines helper (client-side only UI cleanup; main.js handles items array)
-      clearBtn.addEventListener('click', () => {
-        tableWrap.style.display = 'none';
-        msg.textContent = 'Cleared lines (add new items and recalc).';
-      });
-    });
-  </script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
