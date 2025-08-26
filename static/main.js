@@ -1,4 +1,4 @@
-/* RTS Quote — client logic with a nice "Added lines" preview */
+/* RTS Quote — client logic with "Added lines" preview + exterior qty hint */
 
 const typeSel    = document.getElementById('type');
 const variantSel = document.getElementById('variant');
@@ -95,7 +95,6 @@ let previewEl; // container we inject once
 
 function ensurePreviewContainer() {
   if (previewEl) return previewEl;
-  // insert after the first card (controls)
   const cards = document.querySelectorAll('.card');
   const after = cards[0];
   previewEl = document.createElement('div');
@@ -106,20 +105,34 @@ function ensurePreviewContainer() {
       <strong>Added lines</strong>
       <span id="preview-count" class="pill">0 items</span>
     </div>
-    <div id="preview-body"></div>
+    <div id="preview-body" class="stack"></div>
+    <div id="preview-footer" style="margin-top:10px;font-size:13px;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;">
+      Exterior units: <strong id="ext-count">0</strong> · 6+ discount: <strong id="ext-sixplus">Not yet</strong>
+    </div>
   `;
   after.parentNode.insertBefore(previewEl, after.nextSibling);
   return previewEl;
 }
 
+function totalExteriorQty() {
+  return items
+    .filter(it => it.type_display === 'Exterior')
+    .reduce((sum, it) => sum + Number(it.qty || 0), 0);
+}
+
 function renderPreview() {
   ensurePreviewContainer();
-  const body = previewEl.querySelector('#preview-body');
+  const body  = previewEl.querySelector('#preview-body');
   const count = previewEl.querySelector('#preview-count');
+  const extC  = previewEl.querySelector('#ext-count');
+  const extS  = previewEl.querySelector('#ext-sixplus');
 
   if (items.length === 0) {
     body.innerHTML = `<div class="hint">No lines yet. Add a line above.</div>`;
     count.textContent = '0 items';
+    extC.textContent = '0';
+    extS.textContent = 'Not yet';
+    extS.style.color = '#b45309'; // amber
     return;
   }
 
@@ -152,7 +165,7 @@ function renderPreview() {
   `;
   count.textContent = `${items.length} ${items.length === 1 ? 'item' : 'items'}`;
 
-  // hook up remove buttons
+  // hook remove
   body.querySelectorAll('button[data-remove]').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = Number(btn.getAttribute('data-remove'));
@@ -161,6 +174,13 @@ function renderPreview() {
       notify('Removed line.', 'warn');
     });
   });
+
+  // footer — exterior qty + eligibility
+  const extQty = totalExteriorQty();
+  extC.textContent = String(extQty);
+  const eligible = extQty >= 6;
+  extS.textContent = eligible ? 'Eligible' : 'Not yet';
+  extS.style.color = eligible ? '#065f46' : '#b45309'; // green or amber
 }
 
 // --- result rendering ---
@@ -221,17 +241,13 @@ variantSel.addEventListener('change', () => {
 addBtn.addEventListener('click', () => {
   const v = validateAddLine();
   if (!v.ok) { notify(v.reason, 'warn'); return; }
-
   const type_display = typeSel.value;
   const variant = variantSel.value;
   const months  = parseInt(monthsSel.value, 10);
   const qty     = parseInt(qtyInput.value, 10);
-
   items.push({ type_display, variant, months, qty });
   renderPreview();
   notify(`Added: ${type_display} / ${variant} / ${months} / qty ${qty}`, 'ok');
-
-  // reset only qty; keep selections to speed entry
   qtyInput.value = '';
   setDisabled(addBtn, true);
 });
@@ -251,13 +267,11 @@ calcBtn.addEventListener('click', async () => {
   }
   const discountSel = document.getElementById('discount');
   const upfrontSel  = document.getElementById('upfront');
-
   const payload = {
     items,
     discount_choice: discountSel.value,
     upfront_selected: (upfrontSel.value === 'Yes'),
   };
-
   try {
     notify('Calculating…');
     const res = await fetch('/quote', {
