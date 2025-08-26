@@ -12,66 +12,42 @@
       --muted: #6b7280;
       --border: #e5e7eb;
       --accent: #4338ca;
-      --accent-2: #4f46e5;
       --pill-bg: #eef2ff;
+      --ok:#065f46; --warn:#b45309; --info:#3730a3;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--text); }
-    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
-    h1 { margin: 0 0 6px; font-size: 24px; }
-    .sub { color: var(--muted); margin: 0 0 20px; }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    @media (min-width: 900px) {
-      .grid { grid-template-columns: 1fr 1fr; }
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    select, input[type="number"], input[type="text"] {
-      width: 100%; padding: 10px 12px; font-size: 14px;
-      border: 1px solid var(--border); border-radius: 10px; background: #fff;
-    }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    .stack > * + * { margin-top: 12px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .btn {
-      padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
-      background: #fff; cursor: pointer; font-weight: 600;
-    }
-    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn.secondary { background: #111827; color: #fff; border-color: #111827; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .pill {
-      display: inline-block; padding: 6px 10px; border-radius: 999px;
-      background: var(--pill-bg); color: var(--accent); font-weight: 600; font-size: 12px;
-    }
-    #msg {
-      padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--border);
-      font-size: 14px;
-    }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
-    th { text-align: left; color: var(--muted); }
-    .right { text-align: right; }
-    .totals { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .totals .box {
-      padding: 10px; background: #f9fafb; border: 1px solid var(--border); border-radius: 10px;
-      text-align: center; font-weight: 700;
-    }
-    .header-center { text-align: center; margin-bottom: 8px; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    h1{margin:0 0 6px;font-size:22px;text-align:center}
+    .sub{color:var(--muted);margin:0 0 18px;text-align:center}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:980px){.grid{grid-template-columns:1.1fr .9fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    select,input[type="number"],input[type="text"]{width:100%;padding:10px 12px;font-size:14px;border:1px solid var(--border);border-radius:10px;background:#fff}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .stack>*+*{margin-top:12px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .btn{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .btn.secondary{background:#111827;color:#fff;border-color:#111827}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:var(--pill-bg);color:var(--accent);font-weight:600;font-size:12px}
+    #msg{padding:10px 12px;border-radius:10px;border:1px dashed var(--border);font-size:14px;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--border);font-size:14px}
+    th{text-align:left;color:var(--muted)}
+    .right{text-align:right}
+    .totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+    .totals .box{padding:10px;background:#f9fafb;border:1px solid var(--border);border-radius:10px;text-align:center;font-weight:700}
+    .header-center{text-align:center;margin-bottom:6px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="header-center">
-      <div style="font-size:20px; font-weight:800;">City of Gainesville</div>
-      <div style="font-size:16px; font-weight:700; color:var(--muted)">RTS Quote for Advertising</div>
+      <div style="font-size:20px;font-weight:800;">City of Gainesville</div>
+      <div style="font-size:16px;font-weight:700;color:var(--muted)">RTS Quote for Advertising</div>
     </div>
 
     <p class="sub">Build your quote using the official RTS rate tables. Add lines, pick discounts, then calculate or download a PDF.</p>
@@ -79,10 +55,15 @@
     <div id="msg" class="card">Loading…</div>
 
     <div class="grid">
-      <!-- Controls card -->
+      <!-- LEFT: Added lines column -->
+      <div id="previewHost" class="card">
+        <!-- JS will render the "Added lines" card contents here -->
+        <div style="color:var(--muted);font-size:14px;">No lines yet. Use the form to the right to add items.</div>
+      </div>
+
+      <!-- RIGHT: Controls column -->
       <div class="card">
         <div class="stack">
-          <!-- Client name (for PDF filename and header) -->
           <div>
             <label for="clientName">Client name</label>
             <input id="clientName" type="text" placeholder="e.g., Acme Co." />
@@ -141,39 +122,9 @@
           </div>
         </div>
       </div>
-
-      <!-- The "Added lines" preview will be injected by JS as a card here -->
-      <div class="card" id="tableWrap" style="display:none;">
-        <strong>Quote breakdown</strong>
-        <div style="margin-top:10px; overflow-x:auto;">
-          <table id="lines">
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Product</th>
-                <th>Code</th>
-                <th class="right">Months</th>
-                <th class="right">Qty</th>
-                <th class="right">Unit Price</th>
-                <th class="right">Line Total</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="totals">
-          <div class="box">Subtotal: <span id="subtotal">$0.00</span></div>
-          <div class="box">Total: <span id="total">$0.00</span></div>
-          <div class="box">Saved: <span id="saved">$0.00</span></div>
-        </div>
-      </div>
     </div>
 
-    <div class="card" style="margin-top:16px; text-align:center; color:#374151;">
-      Template reviewed and approved as to form and legality by the City Attorney's Office on 05/22/2022; valid through 05/22/2023.<br/>
-      Station 5 - P.O Box 490 - Gainesville, FL 32627 - Ph: 352-334-2600 - Fax: 352-334-3681 - www.go-rts.com
-    </div>
+    <!-- (No legal/footer card here) — it will only appear inside the PDF -->
   </div>
 
   <!-- Expose rate data to JS -->
