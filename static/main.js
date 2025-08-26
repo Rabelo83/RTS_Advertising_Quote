@@ -17,6 +17,9 @@ const subtotalCell = document.getElementById('subtotal');
 const totalCell    = document.getElementById('total');
 const savedCell    = document.getElementById('saved');
 
+const upfrontSel   = document.getElementById('upfront');
+const upfrontLabel = document.querySelector('label[for="upfront"]');
+
 let items = []; // [{type_display, variant, months, qty}]
 
 // --- helpers ---
@@ -60,6 +63,7 @@ function populateVariants() {
     });
   }
 }
+
 function populateMonths() {
   monthsSel.innerHTML = placeholderOptionHTML();
   const type = typeSel.value, variant = variantSel.value;
@@ -136,7 +140,6 @@ function renderPreview() {
     return;
   }
 
-  // build table
   const rows = items.map((it, idx) => `
     <tr>
       <td>${it.type_display}</td>
@@ -165,7 +168,6 @@ function renderPreview() {
   `;
   count.textContent = `${items.length} ${items.length === 1 ? 'item' : 'items'}`;
 
-  // hook remove
   body.querySelectorAll('button[data-remove]').forEach(btn => {
     btn.addEventListener('click', () => {
       const idx = Number(btn.getAttribute('data-remove'));
@@ -175,7 +177,6 @@ function renderPreview() {
     });
   });
 
-  // footer — exterior qty + eligibility
   const extQty = totalExteriorQty();
   extC.textContent = String(extQty);
   const eligible = extQty >= 6;
@@ -212,11 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
   setDisabled(variantSel, true);
   setDisabled(monthsSel, true);
   setDisabled(addBtn, true);
+
+  // initial: hide Upfront until Exterior is chosen
+  upfrontSel.value = 'No';
+  if (upfrontSel.parentElement) upfrontSel.parentElement.style.display = 'none';
+  if (upfrontLabel) upfrontLabel.style.display = 'none';
+
   notify('Pick Type → Variant → Months → Qty, then Add line.', 'info');
   ensurePreviewContainer();
   renderPreview();
 });
 
+// Type change — repopulate, reset, and hide/show Upfront
 typeSel.addEventListener('change', () => {
   setDisabled(variantSel, false);
   populateVariants();
@@ -224,8 +232,19 @@ typeSel.addEventListener('change', () => {
   ensurePlaceholder(monthsSel);
   setDisabled(monthsSel, true);
   setDisabled(addBtn, true);
+
+  const isInterior = (typeSel.value === 'Interior');
+  if (isInterior) {
+    upfrontSel.value = 'No'; // reset
+    if (upfrontSel.parentElement) upfrontSel.parentElement.style.display = 'none';
+    if (upfrontLabel) upfrontLabel.style.display = 'none';
+  } else {
+    if (upfrontSel.parentElement) upfrontSel.parentElement.style.display = '';
+    if (upfrontLabel) upfrontLabel.style.display = '';
+  }
 });
 
+// Variant change — enable Months
 variantSel.addEventListener('change', () => {
   setDisabled(monthsSel, false);
   populateMonths();
@@ -233,11 +252,13 @@ variantSel.addEventListener('change', () => {
   setDisabled(addBtn, !canAddLine());
 });
 
+// Months/Qty change — gate Add button
 [monthsSel, qtyInput].forEach(el => {
   el.addEventListener('input', () => setDisabled(addBtn, !canAddLine()));
   el.addEventListener('change', () => setDisabled(addBtn, !canAddLine()));
 });
 
+// Add line
 addBtn.addEventListener('click', () => {
   const v = validateAddLine();
   if (!v.ok) { notify(v.reason, 'warn'); return; }
@@ -252,6 +273,7 @@ addBtn.addEventListener('click', () => {
   setDisabled(addBtn, true);
 });
 
+// Clear lines
 clearBtn.addEventListener('click', () => {
   items = [];
   tbody.innerHTML = '';
@@ -260,18 +282,20 @@ clearBtn.addEventListener('click', () => {
   notify('Cleared all lines. Add new items and click Calculate.', 'warn');
 });
 
+// Calculate
 calcBtn.addEventListener('click', async () => {
   if (items.length === 0) {
     notify('Add at least one line before calculating.', 'warn');
     return;
   }
   const discountSel = document.getElementById('discount');
-  const upfrontSel  = document.getElementById('upfront');
+
   const payload = {
     items,
     discount_choice: discountSel.value,
     upfront_selected: (upfrontSel.value === 'Yes'),
   };
+
   try {
     notify('Calculating…');
     const res = await fetch('/quote', {
