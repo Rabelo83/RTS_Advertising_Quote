@@ -133,7 +133,7 @@ function populateMonths() {
       monthsSel.appendChild(opt);
     });
   } else {
-    // Interior uses per-4-week price; allow a simple set of month choices
+    // Interior: month options
     [1,2,3,4,6,8,12].forEach(m => {
       const opt = document.createElement('option');
       opt.value = String(m); opt.textContent = String(m);
@@ -252,6 +252,7 @@ function renderPreview() {
   const extQty = totalExteriorQty();
   extC.textContent = String(extQty);
   const eligible = extQty >= 6;
+  extS.textContent = eligible ? '#065f46' : '#b45309';
   extS.textContent = eligible ? 'Eligible' : 'Not yet';
   extS.style.color = eligible ? '#065f46' : '#b45309';
 }
@@ -263,7 +264,6 @@ function ensureResultsContainer() {
   if (tableWrap && tbody && subtotalCell && totalCell && savedCell) {
     return;
   }
-  // Create a results card under the grid, after the two columns
   const grid = document.querySelector('.grid');
   if (!grid) return;
 
@@ -336,6 +336,63 @@ function renderLinesTable(data) {
   savedCell.textContent    = `$${Number(data.saved).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 
   tableWrap.style.display  = '';
+}
+
+/* -----------------------------
+   FULL RESET helpers
+------------------------------ */
+function resetResultsCard() {
+  if (tableWrap) {
+    tableWrap.style.display = 'none';
+    if (subtotalCell) subtotalCell.textContent = '$0.00';
+    if (totalCell)    totalCell.textContent    = '$0.00';
+    if (savedCell)    savedCell.textContent    = '$0.00';
+    if (tbody)        tbody.innerHTML = '';
+  }
+}
+
+function resetSelectors() {
+  // Type
+  typeSel.value = '';
+  // Variant & Months
+  variantSel.innerHTML = '';
+  monthsSel.innerHTML  = '';
+  ensurePlaceholder(variantSel);
+  ensurePlaceholder(monthsSel);
+  setDisabled(variantSel, true);
+  setDisabled(monthsSel, true);
+  // Qty
+  qtyInput.value = '';
+  // Add button
+  setDisabled(addBtn, true);
+}
+
+function resetDiscounts() {
+  const discountSel = document.getElementById('discount');
+  if (discountSel) discountSel.value = 'None';
+  if (upfrontSel) {
+    upfrontSel.value = 'No';
+    if (upfrontSel.parentElement) upfrontSel.parentElement.style.display = 'none';
+  }
+  if (upfrontLabel) upfrontLabel.style.display = 'none';
+}
+
+function resetClient() {
+  if (clientNameInput) clientNameInput.value = '';
+}
+
+function resetPreview() {
+  ensurePreviewContainer();
+  renderPreview();
+}
+
+function resetUI({ clearClient = false } = {}) {
+  resetSelectors();
+  resetDiscounts();
+  resetResultsCard();
+  resetPreview();
+  if (clearClient) resetClient();
+  notify('Cleared. Pick Type → Variant → Months → Qty, then Add line.', 'info');
 }
 
 /* -----------------------------
@@ -412,13 +469,10 @@ addBtn.addEventListener('click', () => {
   setDisabled(addBtn, true);
 });
 
-// Clear lines
+// Clear lines — FULL RESET now
 clearBtn.addEventListener('click', () => {
   items = [];
-  if (tbody) tbody.innerHTML = '';
-  if (tableWrap) tableWrap.style.display = 'none';
-  renderPreview();
-  notify('Cleared all lines. Add new items and click Calculate.', 'warn');
+  resetUI({ clearClient: false }); // set to true if you also want to clear client name
 });
 
 // Calculate (calls /quote)
