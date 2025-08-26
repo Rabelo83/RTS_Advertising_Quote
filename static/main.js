@@ -20,6 +20,9 @@ const savedCell    = document.getElementById('saved');
 const upfrontSel   = document.getElementById('upfront');
 const upfrontLabel = document.querySelector('label[for="upfront"]');
 
+const clientNameInput = document.getElementById('clientName');
+const pdfBtn          = document.getElementById('pdf');
+
 let items = []; // [{type_display, variant, months, qty}]
 
 // --- helpers ---
@@ -313,5 +316,59 @@ calcBtn.addEventListener('click', async () => {
   } catch (err) {
     console.error(err);
     notify('Could not calculate quote. Please try again.', 'err');
+  }
+}); // ← close the Calculate handler here
+
+// Download PDF
+pdfBtn.addEventListener('click', async () => {
+  if (items.length === 0) {
+    notify('Add at least one line before exporting.', 'warn');
+    return;
+  }
+
+  // read current controls
+  const discountSel = document.getElementById('discount');
+  const clientName  = (clientNameInput?.value || '').trim() || 'Unknown';
+
+  const payload = {
+    client_name: clientName,
+    items,
+    discount_choice: discountSel.value,
+    upfront_selected: (upfrontSel.value === 'Yes'),
+  };
+
+  try {
+    pdfBtn.disabled = true;
+    notify('Building PDF…');
+
+    const res = await fetch('/export-pdf', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Server error ${res.status}: ${text || 'no details'}`);
+    }
+
+    const blob = await res.blob();
+    const url  = window.URL.createObjectURL(blob);
+
+    // friendly filename
+    const safeClient = clientName.replace(/[^a-z0-9 _-]/gi, '').trim().replace(/\s+/g, '_') || 'Client';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `RTS_Quote_${safeClient}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    notify('PDF downloaded ✅', 'ok');
+  } catch (err) {
+    console.error(err);
+    notify('Could not export PDF. Please try again.', 'err');
+  } finally {
+    pdfBtn.disabled = false;
   }
 });
