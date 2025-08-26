@@ -1,24 +1,33 @@
+# quote_pdf.py
+
 from io import BytesIO
 from reportlab.lib.pagesizes import LETTER
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import (
+    BaseDocTemplate, Frame, PageTemplate,
+    Table, TableStyle, Paragraph, Spacer
+)
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
 
 def build_quote_pdf_bytes(client_name: str, result) -> bytes:
     buf = BytesIO()
     _build_story_into_doc(buf, client_name, result)
     return buf.getvalue()
 
+
 def save_quote_pdf_file(filepath: str, client_name: str, result) -> None:
     _build_story_into_doc(filepath, client_name, result)
+
 
 def _build_story_into_doc(target, client_name: str, result) -> None:
     styles = getSampleStyleSheet()
 
+    # Headings
     title = ParagraphStyle(
         "RTSTitle",
         parent=styles["Title"],
-        alignment=1,
+        alignment=1,  # center
         fontSize=18,
         leading=22,
         spaceAfter=6,
@@ -33,6 +42,7 @@ def _build_story_into_doc(target, client_name: str, result) -> None:
     )
     normal = styles["Normal"]
 
+    # Story
     story = []
     story.append(Paragraph("City of Gainesville", title))
     story.append(Paragraph("RTS Quote for Advertising", subtitle))
@@ -40,7 +50,7 @@ def _build_story_into_doc(target, client_name: str, result) -> None:
     story.append(Paragraph(f"<b>Client:</b> {escape_text(client_name)}", normal))
     story.append(Spacer(1, 10))
 
-    # Items table (result.items)
+    # Items table (expects result.items -> List[LineItem])
     data = [["Type", "Product/Size", "Code", "Months", "Qty", "Unit Price", "Line Total"]]
     for it in getattr(result, "items", []):
         data.append([
@@ -70,7 +80,7 @@ def _build_story_into_doc(target, client_name: str, result) -> None:
     story.append(tbl)
     story.append(Spacer(1, 16))
 
-    # Totals block (result.subtotal_base, result.total, result.saved)
+    # Totals block (uses result.subtotal_base, result.total, result.saved)
     subtotal = getattr(result, "subtotal_base", 0.0)
     total    = getattr(result, "total", 0.0)
     saved    = getattr(result, "saved", round(subtotal - total, 2))
@@ -88,34 +98,43 @@ def _build_story_into_doc(target, client_name: str, result) -> None:
     story.append(Paragraph(f"Exterior tier used: {ext_tier} (0=Base, 1=1st, 2=2nd, 3=3rd)", normal))
     story.append(Paragraph(f"Interior tier used: {int_tier} (0=Base, 1=1st)", normal))
     story.append(Paragraph(f"Flags applied: {escape_text(flags)}", normal))
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 12))
 
-    # Footer (PDF only)
-    footer = ParagraphStyle(
-        "RTSFooter",
-        parent=styles["Normal"],
-        alignment=1,
-        fontSize=9,
-        leading=12,
-        textColor=colors.HexColor("#374151"),
-    )
-    footer_html = (
-        "Template reviewed and approved as to form and legality by the City Attorney's Office "
-        "on 05/22/2022; valid through 05/22/2023.<br/>"
-        "Station 5 - P.O Box 490 - Gainesville, FL 32627 - "
-        "Ph: 352-334-2600 - Fax: 352-334-3681 - www.go-rts.com"
-    )
-    story.append(Paragraph(footer_html, footer))
+    # ----- Footer callback (true bottom footer on every page) -----
+    def footer_canvas(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 8)
+        page_width, _ = LETTER
 
-    doc = SimpleDocTemplate(
+        line1 = ("Template reviewed and approved as to form and legality by the City Attorney's Office "
+                 "on 05/22/2022; valid through 05/22/2023.")
+        line2 = ("Station 5 - P.O Box 490 - Gainesville, FL 32627 - "
+                 "Ph: 352-334-2600 - Fax: 352-334-3681 - www.go-rts.com")
+
+        # Draw centered a bit above the bottom margin
+        canvas.drawCentredString(page_width / 2.0, 42, line1)
+        canvas.drawCentredString(page_width / 2.0, 30, line2)
+        canvas.restoreState()
+
+    # Build document with a larger bottom margin so the footer never overlaps
+    doc = BaseDocTemplate(
         target,
         pagesize=LETTER,
-        topMargin=36, bottomMargin=36, leftMargin=36, rightMargin=36,
+        topMargin=36,
+        bottomMargin=72,  # reserve space for footer
+        leftMargin=36,
+        rightMargin=36,
         title="RTS Quote",
     )
+
+    # Content frame (slightly reduced height to give footer breathing room)
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id='normal')
+    doc.addPageTemplates(PageTemplate(id='page', frames=frame, onPage=footer_canvas))
+
     doc.build(story)
+
 
 def escape_text(s: str) -> str:
     if not isinstance(s, str):
         s = str(s)
-    return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
