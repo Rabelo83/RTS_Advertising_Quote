@@ -1,83 +1,252 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>RTS Quote (Demo)</title>
+  <title>RTS Quote (Table-driven)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; margin: 20px; }
-    .row { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-    label { min-width: 110px; display: inline-block; }
-    input, select, button { padding: 6px 8px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background: #f5f5f5; }
-    .right { text-align: right; }
-    .muted { color: #666; }
-    .pill { background:#eef; padding:2px 8px; border-radius:12px; font-size:12px; }
+    :root{
+      --bg:#fafafa;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --brand:#2563eb;
+      --brand-ink:#fff;
+      --border:#e5e7eb;
+      --ok:#065f46;
+      --pill:#eef2ff;
+      --pill-ink:#3730a3;
+      --warn:#b45309;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .container{max-width:1100px;margin:28px auto;padding:0 16px}
+    h1{margin:0 0 16px;font-size:28px;font-weight:750;letter-spacing:.2px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .stack{display:grid;gap:12px}
+    .row{display:grid;gap:12px;grid-template-columns:repeat(12,1fr);align-items:end}
+    .col-3{grid-column:span 3}
+    .col-2{grid-column:span 2}
+    .col-4{grid-column:span 4}
+    .col-6{grid-column:span 6}
+    .col-12{grid-column:span 12}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    select,input[type="number"]{
+      width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;
+      font-size:15px;appearance:none
+    }
+    input[type="number"]{appearance:textfield}
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button{appearance:none;margin:0}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+    .btn.ghost{background:#fff}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .hint{font-size:13px;color:var(--muted)}
+    .pill{display:inline-block;background:var(--pill);color:var(--pill-ink);padding:4px 10px;border-radius:999px;font-size:12px}
+    .table-card{margin-top:16px}
+    table{width:100%;border-collapse:collapse}
+    thead th{background:#f6f7fb;color:#374151;font-weight:700;font-size:13px;border-bottom:1px solid var(--border);padding:10px}
+    tbody td{border-bottom:1px solid var(--border);padding:10px;vertical-align:top}
+    tfoot th, tfoot td{background:#fafbff;border-top:1px solid var(--border);padding:12px 10px}
+    td.right, th.right{text-align:right}
+    .totals-row th{font-weight:700}
+    .saved{color:var(--ok);font-weight:800}
+    .notice{color:var(--warn);font-size:12px}
+    @media (max-width: 840px){
+      .row{grid-template-columns:repeat(6,1fr)}
+      .col-3{grid-column:span 3}
+      .col-2{grid-column:span 3}
+      .col-4{grid-column:span 6}
+      .col-6{grid-column:span 6}
+    }
   </style>
 </head>
 <body>
-  <h1>RTS Quote (Table-driven)</h1>
+  <div class="container">
+    <h1>RTS Quote (Table-driven)</h1>
 
-  <div class="row">
-    <label>Type</label>
-    <select id="type">
-      <option>Exterior</option>
-      <option>Interior</option>
-    </select>
+    <!-- Controls -->
+    <div class="card stack" style="gap:16px">
+      <div class="row">
+        <div class="col-3">
+          <label for="type">Type</label>
+          <select id="type" aria-label="Type">
+            <option value="" disabled selected>Select…</option>
+            <option>Exterior</option>
+            <option>Interior</option>
+          </select>
+        </div>
 
-    <label>Variant</label>
-    <select id="variant"></select>
+        <div class="col-3">
+          <label for="variant">Variant</label>
+          <select id="variant" aria-label="Variant" disabled>
+            <option value="" disabled selected>Select…</option>
+          </select>
+        </div>
 
-    <label>Months</label>
-    <select id="months"></select>
+        <div class="col-2">
+          <label for="months">Months</label>
+          <select id="months" aria-label="Months" disabled>
+            <option value="" disabled selected>Select…</option>
+          </select>
+        </div>
 
-    <label>Qty</label>
-    <input id="qty" type="number" min="1" value="1" />
-    <button id="add">Add line</button>
+        <div class="col-2">
+          <label for="qty">Qty</label>
+          <input id="qty" type="number" inputmode="numeric" min="1" placeholder="e.g. 6" />
+        </div>
+
+        <div class="col-2" style="display:flex;gap:8px;align-items:flex-end">
+          <button id="add" class="btn" disabled>Add line</button>
+        </div>
+
+        <div class="col-12 hint">
+          <span class="notice">Tip:</span> Pick <em>Type → Variant → Months → Qty</em> before adding a line.
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-3">
+          <label for="discount">Discount</label>
+          <select id="discount" aria-label="Discount">
+            <option>None</option>
+            <option>Agency 10%</option>
+            <option>PSA 10%</option>
+          </select>
+        </div>
+
+        <div class="col-3">
+          <label for="upfront">Upfront (Exterior)</label>
+          <select id="upfront" aria-label="Upfront">
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+
+        <div class="col-6" style="display:flex;align-items:flex-end;gap:12px">
+          <button id="calc" class="btn primary">Calculate Quote</button>
+          <button id="clear" class="btn ghost" title="Remove all lines">Clear lines</button>
+          <span id="msg" class="pill" aria-live="polite"></span>
+        </div>
+
+        <div class="col-12 hint">
+          6+ Buses auto-applies to exterior if total exterior qty ≥ 6
+        </div>
+      </div>
+    </div>
+
+    <!-- Results table -->
+    <div class="card table-card" id="tableWrap" style="display:none">
+      <table id="lines">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Product/Size</th>
+            <th>Code</th>
+            <th class="right">Months</th>
+            <th class="right">Qty</th>
+            <th class="right">Unit</th>
+            <th class="right">Line</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="totals-row">
+            <th colspan="6" class="right">Subtotal (Base)</th>
+            <th id="subtotal" class="right"></th>
+          </tr>
+          <tr class="totals-row">
+            <th colspan="6" class="right">Total</th>
+            <th id="total" class="right"></th>
+          </tr>
+          <tr class="totals-row">
+            <th colspan="6" class="right">You Saved</th>
+            <th id="saved" class="right saved"></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
 
-  <div class="row">
-    <label>Discount</label>
-    <select id="discount">
-      <option>None</option>
-      <option>Agency 10%</option>
-      <option>PSA 10%</option>
-    </select>
-
-    <label>Upfront (Exterior)</label>
-    <select id="upfront">
-      <option>No</option>
-      <option>Yes</option>
-    </select>
-    <span class="muted">6+ Buses auto-applies to exterior if total exterior qty ≥ 6</span>
-  </div>
-
-  <div class="row">
-    <button id="calc">Calculate Quote</button>
-    <span id="msg" class="pill"></span>
-  </div>
-
-  <table id="lines" style="display:none;">
-    <thead>
-      <tr>
-        <th>Type</th><th>Product/Size</th><th>Code</th><th>Months</th><th>Qty</th><th class="right">Unit</th><th class="right">Line</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-    <tfoot>
-      <tr><th colspan="6" class="right">Subtotal (Base)</th><th class="right" id="subtotal"></th></tr>
-      <tr><th colspan="6" class="right">Total</th><th class="right" id="total"></th></tr>
-      <tr><th colspan="6" class="right">You Saved</th><th class="right" id="saved"></th></tr>
-    </tfoot>
-  </table>
-
+  <!-- Data from Flask -->
   <script>
     window.ALLOWED_MONTHS = {{ allowed_months|tojson }};
     window.EXTERIOR_PRODUCTS = {{ exterior_products|tojson }};
     window.INTERIOR_SIZES = {{ interior_sizes|tojson }};
   </script>
-  <script src="/static/main.js"></script>
+
+  <!-- Your existing behavior -->
+  <script src="/static/main.js" defer></script>
+
+  <!-- Small helper to keep fields EMPTY by default & enable buttons nicely -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const typeSel    = document.getElementById('type');
+      const variantSel = document.getElementById('variant');
+      const monthsSel  = document.getElementById('months');
+      const qtyInput   = document.getElementById('qty');
+      const addBtn     = document.getElementById('add');
+      const clearBtn   = document.getElementById('clear');
+      const tableWrap  = document.getElementById('tableWrap');
+      const msg        = document.getElementById('msg');
+
+      // Ensure placeholders exist & are selected
+      function ensurePlaceholder(sel){
+        if (!sel.querySelector('option[value=""]')) {
+          const opt = document.createElement('option');
+          opt.value = "";
+          opt.disabled = true;
+          opt.selected = true;
+          opt.textContent = "Select…";
+          sel.insertBefore(opt, sel.firstChild);
+        }
+        sel.value = "";
+      }
+
+      // After main.js runs, reset to blank defaults
+      setTimeout(() => {
+        ensurePlaceholder(variantSel);
+        ensurePlaceholder(monthsSel);
+        variantSel.disabled = true;
+        monthsSel.disabled  = true;
+        addBtn.disabled     = true;
+      }, 0);
+
+      // Progressive enabling
+      typeSel.addEventListener('change', () => {
+        variantSel.disabled = false;
+        ensurePlaceholder(variantSel);
+        ensurePlaceholder(monthsSel);
+      });
+
+      variantSel.addEventListener('change', () => {
+        monthsSel.disabled = false;
+        // Make sure months has a placeholder at top
+        ensurePlaceholder(monthsSel);
+      });
+
+      // Gate the Add button
+      function canAdd() {
+        return (
+          typeSel.value &&
+          variantSel.value &&
+          monthsSel.value &&
+          qtyInput.value && Number(qtyInput.value) > 0
+        );
+      }
+      ['change','input'].forEach(ev => {
+        document.addEventListener(ev, () => {
+          addBtn.disabled = !canAdd();
+        });
+      });
+
+      // Clear lines helper (client-side only UI cleanup; main.js handles items array)
+      clearBtn.addEventListener('click', () => {
+        tableWrap.style.display = 'none';
+        msg.textContent = 'Cleared lines (add new items and recalc).';
+      });
+    });
+  </script>
 </body>
 </html>
